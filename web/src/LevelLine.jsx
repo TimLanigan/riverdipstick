@@ -48,29 +48,33 @@ function monthDay(unix) {
 }
 
 // Exactly `days` × 24 hours, ending at the latest reading.
-// A tick marks midday. The date sits beside that tick, never on the card edge.
-function dayMarks(start, end) {
+// A tick is midnight. The date is midday. They are separate marks.
+function axisMarks(start, end) {
   const span = Math.max(end - start, 1);
-  const marks = [];
+  const ticks = [];
+  const labels = [];
   const first = new Date(start * 1000);
   let year = first.getUTCFullYear();
   let month = first.getUTCMonth();
   let date = first.getUTCDate();
   for (let i = 0; i < 14; i += 1) {
-    const noon = Date.UTC(year, month, date, 12, 0, 0) / 1000;
-    if (noon > end) break;
-    if (noon >= start) {
+    const midnight = Date.UTC(year, month, date) / 1000;
+    const noon = midnight + DAY / 2;
+    if (midnight > end && noon > end) break;
+    if (midnight > start && midnight < end) {
+      const at = (midnight - start) / span;
+      if (at > 0.015 && at < 0.985) ticks.push({ key: midnight, at });
+    }
+    if (noon > start && noon < end) {
       const at = (noon - start) / span;
-      if (at > 0.03 && at < 0.97) {
-        marks.push({ key: noon, at, label: monthDay(noon) });
-      }
+      if (at > 0.04 && at < 0.96) labels.push({ key: noon, at, label: monthDay(noon) });
     }
     const next = new Date(Date.UTC(year, month, date + 1));
     year = next.getUTCFullYear();
     month = next.getUTCMonth();
     date = next.getUTCDate();
   }
-  return marks;
+  return { ticks, labels };
 }
 
 export function LevelLine({ stationId, height = 168, interactive = false }) {
@@ -79,7 +83,7 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
   const plotted = toPoints(points);
   const end = plotted.length ? plotted[plotted.length - 1].time : 0;
   const start = end - days * DAY;
-  const marks = dayMarks(start, end);
+  const { ticks, labels } = axisMarks(start, end);
 
   useEffect(() => {
     if (!ready || points.length === 0 || !ref.current) return undefined;
@@ -159,11 +163,13 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
   return (
     <div className={interactive ? "chart live" : "chart"}>
       <div style={{ height }} ref={ref} />
-      <div className="days">
-        {marks.map((mark) => (
-          <span key={mark.key} className="day" style={{ left: `${mark.at * 100}%` }}>
-            <i className="tick" />
-            {mark.label}
+      <div className="axis">
+        {ticks.map((tick) => (
+          <i key={tick.key} className="tick" style={{ left: `${tick.at * 100}%` }} />
+        ))}
+        {labels.map((label) => (
+          <span key={label.key} className="day" style={{ left: `${label.at * 100}%` }}>
+            {label.label}
           </span>
         ))}
       </div>

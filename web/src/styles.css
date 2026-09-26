@@ -171,31 +171,30 @@ h2 {
   pointer-events: none;
 }
 
-.days {
+.axis {
   position: relative;
   height: 1.05rem;
-  margin-top: 0.28rem;
+  margin-top: 0.2rem;
   color: #8ea0bd;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
-.day {
+.axis .tick {
   position: absolute;
   top: 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.28rem;
-  white-space: nowrap;
-  line-height: 1;
-}
-
-.day .tick {
-  flex: none;
   width: 1px;
   height: 14px;
   margin-top: -12px;
   background: #b7c3d6;
+}
+
+.axis .day {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .card-chart .chart {

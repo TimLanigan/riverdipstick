@@ -2,6 +2,8 @@ services:
   api:
     build: ./api
     restart: unless-stopped
+    volumes:
+      - ./data:/data
 
   caddy:
     build:

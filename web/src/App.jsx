@@ -1,5 +1,19 @@
 import { Link, NavLink, Route, Routes, useParams } from "react-router-dom";
 import { findRiver, findStation, rivers, stations, stationsOn } from "./stations.js";
+import { StarButton, useStars } from "./stars.jsx";
+
+function StationCard({ station, meta }) {
+  return (
+    <div className="card">
+      <Link className="card-link" to={`/stations/${station.slug}`}>
+        <span className="river">{station.river}</span>
+        <strong>{station.name}</strong>
+        <span className="meta">{meta}</span>
+      </Link>
+      <StarButton slug={station.slug} />
+    </div>
+  );
+}
 
 function Shell({ children }) {
   return (
@@ -21,21 +35,22 @@ function Shell({ children }) {
 }
 
 function Home() {
-  const starred = stations.filter((station) => station.starred);
+  const { starred, ready } = useStars();
+  const picked = stations.filter((station) => starred.has(station.slug));
   return (
     <Shell>
       <h1>Home</h1>
       <p className="lede">
-        Starred stations only. Open a river when you want the full list.
+        Starred stations only. Open a river and tap a star to add one.
       </p>
+      {!ready ? <p className="lede">Loading…</p> : null}
+      {ready && picked.length === 0 ? (
+        <p className="lede">Nothing starred yet.</p>
+      ) : null}
       <ul className="cards">
-        {starred.map((station) => (
+        {picked.map((station) => (
           <li key={station.slug}>
-            <Link className="card" to={`/stations/${station.slug}`}>
-              <span className="river">{station.river}</span>
-              <strong>{station.name}</strong>
-              <span className="meta">Latest level — not wired yet</span>
-            </Link>
+            <StationCard station={station} meta="Latest level — not wired yet" />
           </li>
         ))}
       </ul>
@@ -88,11 +103,7 @@ function RiverPage() {
       <ul className="cards">
         {list.map((station) => (
           <li key={station.slug}>
-            <Link className="card" to={`/stations/${station.slug}`}>
-              <span className="river">{station.starred ? "Starred" : "Station"}</span>
-              <strong>{station.name}</strong>
-              <span className="meta">{station.note || "Open the station page"}</span>
-            </Link>
+            <StationCard station={station} meta={station.note || "Open the station page"} />
           </li>
         ))}
       </ul>
@@ -121,7 +132,10 @@ function StationPage() {
         <Link to={`/rivers/${station.riverSlug}`}>{station.river}</Link>
         <span> / {station.name}</span>
       </p>
-      <h1>{station.name}</h1>
+      <h1 className="title">
+        {station.name}
+        <StarButton slug={station.slug} />
+      </h1>
       <p className="lede">
         {station.river} · {station.id}
         {station.note ? `. ${station.note}` : ""}

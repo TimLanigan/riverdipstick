@@ -1,38 +1,35 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+import json
+import re
+from pathlib import Path
+from threading import Lock
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 app = FastAPI(title="Riverdipstick", version="2.0.0")
 
-PAGE = """<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Riverdipstick</title>
-  <style>
-    :root { color-scheme: dark; }
-    body {
-      margin: 0; min-height: 100vh; display: grid; place-items: center;
-      background: #0e1116; color: #e7e9ee;
-      font: 18px/1.45 ui-sans-serif, system-ui, sans-serif;
-    }
-    main { max-width: 34rem; padding: 2rem; }
-    h1 { font-weight: 560; letter-spacing: -0.03em; margin: 0 0 0.4rem; }
-    p { color: #b7bdc9; }
-    a { color: #7eb6ff; }
-    code { color: #e7e9ee; }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Riverdipstick</h1>
-    <p>2.0 preview on the home network. Nothing to fish with yet — the station pages come next.</p>
-    <p>1.0 is still <a href="https://riverdipstick.uk">riverdipstick.uk</a>.</p>
-    <p>Health: <a href="/health"><code>/health</code></a></p>
-  </main>
-</body>
-</html>
-"""
+STARS_PATH = Path("/data/stars.json")
+SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+DEFAULT = ["great-musgrave", "low-moor"]
+lock = Lock()
+
+
+class StarUpdate(BaseModel):
+    starred: bool
+
+
+def read_stars() -> list[str]:
+    if not STARS_PATH.exists():
+        write_stars(DEFAULT)
+        return list(DEFAULT)
+    data = json.loads(STARS_PATH.read_text())
+    slugs = data.get("slugs", [])
+    return [slug for slug in slugs if isinstance(slug, str) and SLUG.match(slug)]
+
+
+def write_stars(slugs: list[str]) -> None:
+    STARS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STARS_PATH.write_text(json.dumps({"slugs": slugs}, indent=2) + "\n")
 
 
 @app.get("/health")
@@ -40,6 +37,21 @@ def health() -> dict:
     return {"ok": True, "service": "riverdipstick", "version": "2.0.0"}
 
 
-@app.get("/", response_class=HTMLResponse)
-def home() -> str:
-    return PAGE
+@app.get("/api/stars")
+def get_stars() -> dict:
+    with lock:
+        return {"slugs": read_stars()}
+
+
+@app.put("/api/stars/{slug}")
+def put_star(slug: str, body: StarUpdate) -> dict:
+    if not SLUG.match(slug):
+        raise HTTPException(status_code=400, detail="bad slug")
+    with lock:
+        slugs = read_stars()
+        if body.starred and slug not in slugs:
+            slugs.append(slug)
+        if not body.starred and slug in slugs:
+            slugs.remove(slug)
+        write_stars(slugs)
+        return {"slugs": slugs}

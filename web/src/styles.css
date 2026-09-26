@@ -92,11 +92,51 @@ h2 {
   background: #151a22;
 }
 
+.card {
+  position: relative;
+}
+
+.card-link {
+  display: block;
+  padding-right: 2.2rem;
+  color: inherit;
+}
+
 .card strong {
   display: block;
   color: #e7e9ee;
   font-size: 1.15rem;
   margin: 0.15rem 0;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+h1.title {
+  margin: 0 0 0.4rem;
+}
+
+.card .star {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.45rem;
+}
+
+.star {
+  border: 0;
+  background: transparent;
+  color: #8ea0bd;
+  font-size: 1.45rem;
+  line-height: 1;
+  padding: 0.35rem 0.45rem;
+  cursor: pointer;
+}
+
+.star.on {
+  color: #f5c518;
 }
 
 .river {

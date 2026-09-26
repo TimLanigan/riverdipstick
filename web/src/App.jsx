@@ -1,5 +1,5 @@
 import { Link, NavLink, Route, Routes, useParams } from "react-router-dom";
-import { findStation, stations } from "./stations.js";
+import { findRiver, findStation, rivers, stations, stationsOn } from "./stations.js";
 
 function Shell({ children }) {
   return (
@@ -12,7 +12,7 @@ function Shell({ children }) {
           <NavLink to="/" end>
             Home
           </NavLink>
-          <NavLink to="/stations">Stations</NavLink>
+          <NavLink to="/rivers">Rivers</NavLink>
         </nav>
       </header>
       <main>{children}</main>
@@ -26,13 +26,13 @@ function Home() {
     <Shell>
       <h1>Home</h1>
       <p className="lede">
-        Starred stations only. A card is a glance. The station page is where you look properly.
+        Starred stations only. Open a river when you want the full list.
       </p>
       <ul className="cards">
         {starred.map((station) => (
           <li key={station.slug}>
             <Link className="card" to={`/stations/${station.slug}`}>
-              <span className="river">{station.river}</span>
+              <span className="river">River {station.river}</span>
               <strong>{station.name}</strong>
               <span className="meta">Latest level — not wired yet</span>
             </Link>
@@ -43,19 +43,53 @@ function Home() {
   );
 }
 
-function StationList() {
+function RiverList() {
   return (
     <Shell>
-      <h1>Stations</h1>
-      <p className="lede">Every gauge has a page. A star only decides if it sits on the home page.</p>
+      <h1>Rivers</h1>
+      <p className="lede">Pick a river, then a station.</p>
+      <ul className="cards">
+        {rivers.map((river) => (
+          <li key={river.slug}>
+            <Link className="card" to={`/rivers/${river.slug}`}>
+              <span className="river">{river.stations.length} stations</span>
+              <strong>River {river.name}</strong>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Shell>
+  );
+}
+
+function RiverPage() {
+  const { riverSlug } = useParams();
+  const river = findRiver(riverSlug);
+  if (!river) {
+    return (
+      <Shell>
+        <h1>No such river</h1>
+        <p>
+          <Link to="/rivers">Back to rivers</Link>
+        </p>
+      </Shell>
+    );
+  }
+  const list = stationsOn(river.slug);
+  return (
+    <Shell>
+      <p className="crumb">
+        <Link to="/">Home</Link>
+        <span> / </span>
+        <Link to="/rivers">Rivers</Link>
+        <span> / {river.name}</span>
+      </p>
+      <h1>River {river.name}</h1>
       <ul className="list">
-        {stations.map((station) => (
+        {list.map((station) => (
           <li key={station.slug}>
             <Link to={`/stations/${station.slug}`}>{station.name}</Link>
-            <span>
-              {station.river}
-              {station.starred ? " · starred" : " · not starred"}
-            </span>
+            <span>{station.starred ? "starred" : ""}</span>
           </li>
         ))}
       </ul>
@@ -71,7 +105,7 @@ function StationPage() {
       <Shell>
         <h1>No such station</h1>
         <p>
-          <Link to="/stations">Back to stations</Link>
+          <Link to="/rivers">Back to rivers</Link>
         </p>
       </Shell>
     );
@@ -79,14 +113,15 @@ function StationPage() {
   return (
     <Shell>
       <p className="crumb">
-        <Link to="/">Home</Link>
+        <Link to="/rivers">Rivers</Link>
         <span> / </span>
-        <Link to="/stations">Stations</Link>
+        <Link to={`/rivers/${station.riverSlug}`}>River {station.river}</Link>
         <span> / {station.name}</span>
       </p>
       <h1>{station.name}</h1>
       <p className="lede">
-        {station.river} · {station.id}. {station.note}
+        River {station.river} · {station.id}
+        {station.note ? `. ${station.note}` : ""}
       </p>
       <div className="grid">
         {["Level line", "Pressure", "Forecast", "Map"].map((title) => (
@@ -104,7 +139,8 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/stations" element={<StationList />} />
+      <Route path="/rivers" element={<RiverList />} />
+      <Route path="/rivers/:riverSlug" element={<RiverPage />} />
       <Route path="/stations/:slug" element={<StationPage />} />
     </Routes>
   );

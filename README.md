@@ -11,4 +11,4 @@ cd /home/tim/src/riverdipstick
 docker compose up -d --build
 ```
 
-API health: http://skynet3.local/health
+Pages: `/` home, `/stations`, `/stations/great-musgrave`. API health: http://skynet3.local/health

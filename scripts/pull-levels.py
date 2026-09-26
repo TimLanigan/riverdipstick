@@ -4,7 +4,7 @@
 Read-only. The API container never gets an SSH key. A user timer runs this
 every few minutes. Does not write to wintermute-db.
 
-DAYS is the card chart window. The series starts at UK midnight that many days ago.
+DAYS is how many 24-hour stretches the card chart shows, ending at the latest reading.
 """
 
 import json
@@ -17,8 +17,8 @@ DATA = ROOT / "data"
 LEVELS_OUT = DATA / "levels.json"
 SERIES_OUT = DATA / "series.json"
 
-# Card chart window, in whole UK days. The line starts at midnight this
-# many days ago, not at whatever clock time it is now. Not a control on the card.
+# Card chart window. Exactly this many 24-hour stretches, ending at the
+# latest reading. Not a control on the card.
 DAYS = 3
 
 LATEST_SQL = """
@@ -37,10 +37,7 @@ SELECT station_id,
        floor(extract(epoch from timestamp))::bigint,
        level
 FROM readings
-WHERE timestamp >= (
-  date_trunc('day', NOW() AT TIME ZONE 'Europe/London')
-  - INTERVAL '{DAYS} days'
-) AT TIME ZONE 'Europe/London'
+WHERE timestamp >= NOW() - INTERVAL '{DAYS} days'
   AND level IS NOT NULL
 ORDER BY station_id, timestamp
 """

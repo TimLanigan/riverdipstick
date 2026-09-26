@@ -37,21 +37,7 @@ function toPoints(raw) {
   return points;
 }
 
-function londonMidnightToday() {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/London",
-    hourCycle: "h23",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const pick = (type) => Number(parts.find((part) => part.type === type).value);
-  return Math.floor(Date.UTC(pick("year"), pick("month") - 1, pick("day")) / 1000);
-}
-
-function windowStart(days) {
-  return londonMidnightToday() - days * 86400;
-}
+const DAY = 86400;
 
 function monthDay(unix) {
   return new Intl.DateTimeFormat("en-US", {
@@ -61,17 +47,30 @@ function monthDay(unix) {
   }).format(new Date(unix * 1000));
 }
 
+// Exactly `days` × 24 hours, ending at the latest reading. A date is drawn
+// in the middle of that day, and left off when it would sit on the card edge.
 function dayMarks(start, end) {
   const span = Math.max(end - start, 1);
   const marks = [];
-  for (let time = start; time <= end; time += 86400) {
-    const at = (time - start) / span;
-    marks.push({
-      key: time,
-      at,
-      align: at < 0.03 ? "start" : at > 0.94 ? "end" : "mid",
-      label: monthDay(time),
-    });
+  const first = new Date(start * 1000);
+  let year = first.getUTCFullYear();
+  let month = first.getUTCMonth();
+  let date = first.getUTCDate();
+  for (let i = 0; i < 14; i += 1) {
+    const dayStart = Date.UTC(year, month, date) / 1000;
+    if (dayStart >= end) break;
+    const visibleStart = Math.max(dayStart, start);
+    const visibleEnd = Math.min(dayStart + DAY, end);
+    if (visibleEnd > visibleStart) {
+      const at = ((visibleStart + visibleEnd) / 2 - start) / span;
+      if (at > 0.08 && at < 0.92) {
+        marks.push({ key: dayStart, at, align: "mid", label: monthDay(dayStart) });
+      }
+    }
+    const next = new Date(Date.UTC(year, month, date + 1));
+    year = next.getUTCFullYear();
+    month = next.getUTCMonth();
+    date = next.getUTCDate();
   }
   return marks;
 }
@@ -80,8 +79,8 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
   const { ready, days, points } = useSeries(stationId);
   const ref = useRef(null);
   const plotted = toPoints(points);
-  const start = windowStart(days);
-  const end = plotted.length ? plotted[plotted.length - 1].time : start;
+  const end = plotted.length ? plotted[plotted.length - 1].time : 0;
+  const start = end - days * DAY;
   const marks = dayMarks(start, end);
 
   useEffect(() => {
@@ -147,9 +146,10 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
     });
     const plotted = toPoints(points);
     series.setData(plotted);
+    const end = plotted[plotted.length - 1].time;
     chart.timeScale().setVisibleRange({
-      from: windowStart(days),
-      to: plotted[plotted.length - 1].time,
+      from: end - days * DAY,
+      to: end,
     });
     return () => chart.remove();
   }, [ready, points, days, interactive]);

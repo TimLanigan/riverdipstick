@@ -10,20 +10,20 @@ function StationCard({ station }) {
   const to = `/stations/${station.slug}`;
   return (
     <div className="card station-card">
-      <Link className="card-title" to={to}>
-        <span className="river">{station.river}</span>
-        <span className="sep">/</span>
-        <strong>{station.name}</strong>
-      </Link>
-      <StarButton slug={station.slug} />
-      {reading ? (
-        <Link className="level" to={to}>
-          {reading.metres}
-          {reading.when ? <span className="when"> · {reading.when}</span> : null}
+      <div className="card-head">
+        <Link className="card-title" to={to}>
+          <span className="river">{station.river}</span>
+          <span className="sep">/</span>
+          <strong>{station.name}</strong>
         </Link>
-      ) : (
-        <span className="level" />
-      )}
+        <StarButton slug={station.slug} />
+        {reading ? (
+          <Link className="level" to={to}>
+            {reading.metres}
+            {reading.when ? <span className="when"> · {reading.when}</span> : null}
+          </Link>
+        ) : null}
+      </div>
       {station.note ? <span className="meta note">{station.note}</span> : null}
       <Link className="card-chart" to={to}>
         <LevelLine stationId={station.id} />

@@ -1,7 +1,7 @@
 // First pass from the live readings table, 26 Sep 2026.
-// Order follows the 1.0 station list (source to sea). One row per gauge.
-// Lancaster Quay kept the current label only. Langholm is in the database
-// but silent since May 2026.
+// Order follows the 1.0 station list. One row per gauge.
+// Lancaster Quay kept the current label only.
+// Canonbie was stored as "Esk"; it is the Border Esk, same river as Langholm.
 
 export const rivers = [
   {
@@ -46,11 +46,6 @@ export const rivers = [
     ],
   },
   {
-    slug: "esk",
-    name: "Esk",
-    stations: [["133148", "Canonbie", "canonbie"]],
-  },
-  {
     slug: "liddel",
     name: "Liddel",
     stations: [
@@ -62,7 +57,8 @@ export const rivers = [
     slug: "border-esk",
     name: "Border Esk",
     stations: [
-      ["506155", "Langholm Bridge", "langholm", false, "In the database. Silent since May 2026."],
+      ["506155", "Langholm Bridge", "langholm", false, "Silent since May 2026."],
+      ["133148", "Canonbie", "canonbie"],
     ],
   },
 ];

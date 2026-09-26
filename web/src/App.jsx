@@ -32,7 +32,7 @@ function Home() {
         {starred.map((station) => (
           <li key={station.slug}>
             <Link className="card" to={`/stations/${station.slug}`}>
-              <span className="river">River {station.river}</span>
+              <span className="river">{station.river}</span>
               <strong>{station.name}</strong>
               <span className="meta">Latest level — not wired yet</span>
             </Link>
@@ -53,7 +53,7 @@ function RiverList() {
           <li key={river.slug}>
             <Link className="card" to={`/rivers/${river.slug}`}>
               <span className="river">{river.stations.length} stations</span>
-              <strong>River {river.name}</strong>
+              <strong>{river.name}</strong>
             </Link>
           </li>
         ))}
@@ -84,7 +84,7 @@ function RiverPage() {
         <Link to="/rivers">Rivers</Link>
         <span> / {river.name}</span>
       </p>
-      <h1>River {river.name}</h1>
+      <h1>{river.name}</h1>
       <ul className="list">
         {list.map((station) => (
           <li key={station.slug}>
@@ -115,12 +115,12 @@ function StationPage() {
       <p className="crumb">
         <Link to="/rivers">Rivers</Link>
         <span> / </span>
-        <Link to={`/rivers/${station.riverSlug}`}>River {station.river}</Link>
+        <Link to={`/rivers/${station.riverSlug}`}>{station.river}</Link>
         <span> / {station.name}</span>
       </p>
       <h1>{station.name}</h1>
       <p className="lede">
-        River {station.river} · {station.id}
+        {station.river} · {station.id}
         {station.note ? `. ${station.note}` : ""}
       </p>
       <div className="grid">

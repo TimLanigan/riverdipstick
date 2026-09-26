@@ -85,11 +85,14 @@ function RiverPage() {
         <span> / {river.name}</span>
       </p>
       <h1>{river.name}</h1>
-      <ul className="list">
+      <ul className="cards">
         {list.map((station) => (
           <li key={station.slug}>
-            <Link to={`/stations/${station.slug}`}>{station.name}</Link>
-            <span>{station.starred ? "starred" : ""}</span>
+            <Link className="card" to={`/stations/${station.slug}`}>
+              <span className="river">{station.starred ? "Starred" : "Station"}</span>
+              <strong>{station.name}</strong>
+              <span className="meta">{station.note || "Open the station page"}</span>
+            </Link>
           </li>
         ))}
       </ul>

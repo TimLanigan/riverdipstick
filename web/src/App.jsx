@@ -1,14 +1,17 @@
 import { Link, NavLink, Route, Routes, useParams } from "react-router-dom";
 import { findRiver, findStation, rivers, stations, stationsOn } from "./stations.js";
+import { useLevelLine } from "./levels.jsx";
 import { StarButton, useStars } from "./stars.jsx";
 
-function StationCard({ station, meta }) {
+function StationCard({ station }) {
+  const line = useLevelLine(station.id);
   return (
     <div className="card">
       <Link className="card-link" to={`/stations/${station.slug}`}>
         <span className="river">{station.river}</span>
         <strong>{station.name}</strong>
-        <span className="meta">{meta}</span>
+        <span className="level">{line}</span>
+        {station.note ? <span className="meta">{station.note}</span> : null}
       </Link>
       <StarButton slug={station.slug} />
     </div>
@@ -50,7 +53,7 @@ function Home() {
       <ul className="cards">
         {picked.map((station) => (
           <li key={station.slug}>
-            <StationCard station={station} meta="Latest level — not wired yet" />
+            <StationCard station={station} />
           </li>
         ))}
       </ul>
@@ -103,7 +106,7 @@ function RiverPage() {
       <ul className="cards">
         {list.map((station) => (
           <li key={station.slug}>
-            <StationCard station={station} meta={station.note || "Open the station page"} />
+            <StationCard station={station} />
           </li>
         ))}
       </ul>

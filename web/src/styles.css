@@ -112,6 +112,13 @@ h2 {
   margin: 0.15rem 0;
 }
 
+.level {
+  display: block;
+  color: #e7e9ee;
+  font-variant-numeric: tabular-nums;
+  margin-top: 0.15rem;
+}
+
 .title {
   display: flex;
   align-items: center;

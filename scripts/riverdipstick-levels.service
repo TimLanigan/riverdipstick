@@ -1,0 +1,7 @@
+[Unit]
+Description=Pull latest river levels for the riverdipstick preview
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/tim/src/riverdipstick
+ExecStart=/usr/bin/python3 /home/tim/src/riverdipstick/scripts/pull-levels.py

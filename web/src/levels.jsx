@@ -47,8 +47,9 @@ function formatWhen(iso) {
 export function useLevelLine(stationId) {
   const levels = useContext(LevelsContext);
   const row = levels[stationId];
-  if (!row) return "No level in the last 2 days";
-  const metres = `${Number(row.level).toFixed(2)}m`;
-  const when = formatWhen(row.at);
-  return when ? `${metres} · ${when}` : metres;
+  if (!row || !Number.isFinite(Number(row.level))) return null;
+  return {
+    metres: `${Number(row.level).toFixed(2)}m`,
+    when: formatWhen(row.at),
+  };
 }

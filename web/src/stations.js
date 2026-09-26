@@ -9,7 +9,7 @@ export const rivers = [
     name: "Eden",
     stations: [
       ["760101", "Kirkby Stephen", "kirkby-stephen"],
-      ["760112", "Great Musgrave Bridge", "great-musgrave", true, "Go-to station."],
+      ["760112", "Great Musgrave Bridge", "great-musgrave", true],
       ["760115", "Appleby", "appleby"],
       ["760502", "Temple Sowerby", "temple-sowerby"],
       ["762505", "Great Corby", "great-corby"],
@@ -23,7 +23,7 @@ export const rivers = [
     stations: [
       ["710151", "Locks Weir", "locks-weir"],
       ["710102", "Penny Bridge", "penny-bridge"],
-      ["710301", "Low Moor", "low-moor", true, "Go-to station."],
+      ["710301", "Low Moor", "low-moor", true],
       ["710305", "Henthorn", "henthorn"],
       ["713056", "New Jumbles Rock", "new-jumbles-rock"],
       ["713040", "Ribchester School", "ribchester", false, "Collecting. Not starred until the club comes through."],

@@ -6,17 +6,28 @@ import { useSeries } from "./series.jsx";
 import { StarButton, useStars } from "./stars.jsx";
 
 function StationCard({ station }) {
-  const line = useLevelLine(station.id);
+  const reading = useLevelLine(station.id);
+  const to = `/stations/${station.slug}`;
   return (
-    <div className="card">
-      <Link className="card-link" to={`/stations/${station.slug}`}>
+    <div className="card station-card">
+      <Link className="card-title" to={to}>
         <span className="river">{station.river}</span>
+        <span className="sep">/</span>
         <strong>{station.name}</strong>
-        <span className="level">{line}</span>
-        {station.note ? <span className="meta">{station.note}</span> : null}
-        <LevelLine stationId={station.id} />
       </Link>
       <StarButton slug={station.slug} />
+      {reading ? (
+        <Link className="level" to={to}>
+          {reading.metres}
+          {reading.when ? <span className="when"> · {reading.when}</span> : null}
+        </Link>
+      ) : (
+        <span className="level" />
+      )}
+      {station.note ? <span className="meta note">{station.note}</span> : null}
+      <Link className="card-chart" to={to}>
+        <LevelLine stationId={station.id} />
+      </Link>
     </div>
   );
 }

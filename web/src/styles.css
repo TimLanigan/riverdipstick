@@ -48,8 +48,11 @@ nav a.active {
 }
 
 main {
-  max-width: 46rem;
-  padding: 1.5rem 1.25rem 3rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem clamp(1.25rem, 4vw, 3rem) 3rem;
 }
 
 h1 {
@@ -165,11 +168,4 @@ h1.title {
 .crumb {
   margin: 0 0 0.6rem;
   font-size: 0.92rem;
-}
-
-@media (min-width: 700px) {
-  .cards,
-  .grid {
-    grid-template-columns: 1fr 1fr;
-  }
 }

@@ -97,11 +97,13 @@ h2 {
 
 .card {
   position: relative;
+  overflow: hidden;
 }
 
 .card-link {
+  --star-gap: 2.2rem;
   display: block;
-  padding-right: 2.2rem;
+  padding-right: var(--star-gap);
   color: inherit;
 }
 
@@ -125,8 +127,10 @@ h2 {
 }
 
 .card-link .chart {
-  margin-right: -1rem;
+  /* Card padding is 1rem. The link also keeps a gap for the star.
+     Cancel both so the line meets the card edge on each side. */
   margin-left: -1rem;
+  margin-right: calc(-1rem - var(--star-gap));
 }
 
 .chart.live {

@@ -48,14 +48,23 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
         textColor: "#8ea0bd",
+        fontSize: 11,
         fontFamily: "ui-sans-serif, system-ui, sans-serif",
         attributionLogo: false,
       },
       grid: {
         vertLines: { visible: false },
-        horzLines: { color: "rgba(255,255,255,0.06)" },
+        horzLines: { visible: interactive, color: "rgba(255,255,255,0.06)" },
       },
-      rightPriceScale: { borderVisible: false },
+      // Cards are the shape only. The metres live on the station page.
+      leftPriceScale: { visible: false },
+      rightPriceScale: {
+        visible: interactive,
+        borderVisible: false,
+        alignLabels: false,
+        entireTextOnly: true,
+        scaleMargins: { top: 0.08, bottom: 0.04 },
+      },
       timeScale: {
         borderVisible: false,
         fixLeftEdge: true,

@@ -19,7 +19,7 @@ LEVELS_OUT = DATA / "levels.json"
 SERIES_OUT = DATA / "series.json"
 
 # Card chart window. Change this and rerun; the site has no day picker.
-DAYS = 7
+DAYS = 3
 
 LATEST_SQL = """
 SELECT DISTINCT ON (station_id)

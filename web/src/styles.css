@@ -124,6 +124,11 @@ h2 {
   pointer-events: none;
 }
 
+.card-link .chart {
+  margin-right: -1rem;
+  margin-left: -1rem;
+}
+
 .chart.live {
   pointer-events: auto;
 }

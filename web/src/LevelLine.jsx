@@ -47,8 +47,8 @@ function monthDay(unix) {
   }).format(new Date(unix * 1000));
 }
 
-// Exactly `days` × 24 hours, ending at the latest reading. A date is drawn
-// in the middle of that day, and left off when it would sit on the card edge.
+// Exactly `days` × 24 hours, ending at the latest reading.
+// A tick marks midday. The date sits beside that tick, never on the card edge.
 function dayMarks(start, end) {
   const span = Math.max(end - start, 1);
   const marks = [];
@@ -57,14 +57,12 @@ function dayMarks(start, end) {
   let month = first.getUTCMonth();
   let date = first.getUTCDate();
   for (let i = 0; i < 14; i += 1) {
-    const dayStart = Date.UTC(year, month, date) / 1000;
-    if (dayStart >= end) break;
-    const visibleStart = Math.max(dayStart, start);
-    const visibleEnd = Math.min(dayStart + DAY, end);
-    if (visibleEnd > visibleStart) {
-      const at = ((visibleStart + visibleEnd) / 2 - start) / span;
-      if (at > 0.08 && at < 0.92) {
-        marks.push({ key: dayStart, at, align: "mid", label: monthDay(dayStart) });
+    const noon = Date.UTC(year, month, date, 12, 0, 0) / 1000;
+    if (noon > end) break;
+    if (noon >= start) {
+      const at = (noon - start) / span;
+      if (at > 0.03 && at < 0.97) {
+        marks.push({ key: noon, at, label: monthDay(noon) });
       }
     }
     const next = new Date(Date.UTC(year, month, date + 1));
@@ -163,7 +161,8 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
       <div style={{ height }} ref={ref} />
       <div className="days">
         {marks.map((mark) => (
-          <span key={mark.key} className={mark.align} style={{ left: `${mark.at * 100}%` }}>
+          <span key={mark.key} className="day" style={{ left: `${mark.at * 100}%` }}>
+            <i className="tick" />
             {mark.label}
           </span>
         ))}

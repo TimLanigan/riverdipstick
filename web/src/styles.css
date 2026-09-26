@@ -173,25 +173,29 @@ h2 {
 
 .days {
   position: relative;
-  height: 1rem;
-  margin-top: 0.15rem;
+  height: 1.05rem;
+  margin-top: 0.28rem;
   color: #8ea0bd;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
-.days span {
+.day {
   position: absolute;
   top: 0;
-  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.28rem;
+  white-space: nowrap;
+  line-height: 1;
 }
 
-.days span.start {
-  transform: none;
-}
-
-.days span.end {
-  transform: translateX(-100%);
+.day .tick {
+  flex: none;
+  width: 1px;
+  height: 14px;
+  margin-top: -12px;
+  background: #b7c3d6;
 }
 
 .card-chart .chart {

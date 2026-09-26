@@ -37,9 +37,36 @@ function toPoints(raw) {
   return points;
 }
 
+function dayMarks(points) {
+  if (points.length === 0) return [];
+  const start = points[0].time;
+  const span = Math.max(points[points.length - 1].time - start, 1);
+  const marks = [];
+  let lastKey = "";
+  for (const point of points) {
+    const date = new Date(point.time * 1000);
+    const key = date.toISOString().slice(0, 10);
+    if (key === lastKey) continue;
+    lastKey = key;
+    const at = (point.time - start) / span;
+    const day = date.getUTCDate();
+    marks.push({
+      key,
+      at,
+      align: at < 0.04 ? "start" : at > 0.92 ? "end" : "mid",
+      label:
+        day === 1
+          ? new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", day: "numeric", month: "short" }).format(date)
+          : String(day),
+    });
+  }
+  return marks;
+}
+
 export function LevelLine({ stationId, height = 168, interactive = false }) {
   const { ready, days, points } = useSeries(stationId);
   const ref = useRef(null);
+  const marks = dayMarks(toPoints(points));
 
   useEffect(() => {
     if (!ready || points.length === 0 || !ref.current) return undefined;
@@ -66,10 +93,9 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
         scaleMargins: { top: 0.08, bottom: 0.04 },
       },
       timeScale: {
-        borderVisible: false,
+        visible: false,
         fixLeftEdge: true,
         fixRightEdge: true,
-        secondsVisible: false,
       },
       localization: {
         locale: "en-GB",
@@ -113,6 +139,15 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
     return <p className="meta">No readings in the last {days} days.</p>;
   }
   return (
-    <div className={interactive ? "chart live" : "chart"} style={{ height }} ref={ref} />
+    <div className={interactive ? "chart live" : "chart"}>
+      <div style={{ height }} ref={ref} />
+      <div className="days">
+        {marks.map((mark) => (
+          <span key={mark.key} className={mark.align} style={{ left: `${mark.at * 100}%` }}>
+            {mark.label}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }

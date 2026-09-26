@@ -119,6 +119,19 @@ h2 {
   margin-top: 0.15rem;
 }
 
+.chart {
+  margin-top: 0.75rem;
+  pointer-events: none;
+}
+
+.chart.live {
+  pointer-events: auto;
+}
+
+.chart.waiting {
+  margin-top: 0.75rem;
+}
+
 .title {
   display: flex;
   align-items: center;

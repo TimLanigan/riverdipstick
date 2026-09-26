@@ -13,4 +13,4 @@ docker compose up -d --build
 
 Pages: `/` starred home, `/rivers`, `/rivers/eden`, `/stations/great-musgrave`. API health: http://skynet3.local/health
 
-Latest levels are a read-only copy of the live 1.0 database. `scripts/pull-levels.py` writes `data/levels.json` (not in git). A user timer runs it every 5 minutes. The API only reads that file.
+Latest levels and the 7-day level line are a read-only copy of the live 1.0 database. `scripts/pull-levels.py` writes `data/levels.json` and `data/series.json` (not in git). A user timer runs it every 5 minutes. The API only reads those files. Change `DAYS` in the script to try 3 days.

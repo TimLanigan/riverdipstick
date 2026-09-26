@@ -1,6 +1,8 @@
 import { Link, NavLink, Route, Routes, useParams } from "react-router-dom";
 import { findRiver, findStation, rivers, stations, stationsOn } from "./stations.js";
+import { LevelLine } from "./LevelLine.jsx";
 import { useLevelLine } from "./levels.jsx";
+import { useSeries } from "./series.jsx";
 import { StarButton, useStars } from "./stars.jsx";
 
 function StationCard({ station }) {
@@ -12,6 +14,7 @@ function StationCard({ station }) {
         <strong>{station.name}</strong>
         <span className="level">{line}</span>
         {station.note ? <span className="meta">{station.note}</span> : null}
+        <LevelLine stationId={station.id} />
       </Link>
       <StarButton slug={station.slug} />
     </div>
@@ -114,6 +117,18 @@ function RiverPage() {
   );
 }
 
+function Window() {
+  const { days } = useSeries("");
+  return (
+    <p className="meta">
+      Last {days} days.{" "}
+      <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">
+        Charts by TradingView
+      </a>
+    </p>
+  );
+}
+
 function StationPage() {
   const { slug } = useParams();
   const station = findStation(slug);
@@ -144,10 +159,15 @@ function StationPage() {
         {station.note ? `. ${station.note}` : ""}
       </p>
       <div className="grid">
-        {["Level line", "Pressure", "Forecast", "Map"].map((title) => (
+        <section className="block">
+          <h2>Level line</h2>
+          <Window />
+          <LevelLine stationId={station.id} height={420} interactive />
+        </section>
+        {["Pressure", "Forecast", "Map"].map((title) => (
           <section className="block" key={title}>
             <h2>{title}</h2>
-            <p>Empty card. Charts come after this navigation holds.</p>
+            <p>Empty card.</p>
           </section>
         ))}
       </div>

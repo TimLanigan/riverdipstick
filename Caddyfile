@@ -4,6 +4,7 @@
 }
 
 :80 {
+	encode gzip
 	handle /health {
 		reverse_proxy api:8000
 	}

@@ -10,6 +10,8 @@ app = FastAPI(title="Riverdipstick", version="2.0.0")
 
 STARS_PATH = Path("/data/stars.json")
 LEVELS_PATH = Path("/data/levels.json")
+SERIES_PATH = Path("/data/series.json")
+_series_cache = {"mtime": None, "payload": {"days": 7, "stations": {}}}
 SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 DEFAULT = ["great-musgrave", "low-moor"]
 lock = Lock()
@@ -59,6 +61,29 @@ def get_levels() -> dict:
             continue
         clean[station_id] = {"level": level, "at": at}
     return {"fetched_at": data.get("fetched_at"), "stations": clean}
+
+
+@app.get("/api/series")
+def get_series() -> dict:
+    if not SERIES_PATH.exists():
+        return {"days": 7, "stations": {}}
+    mtime = SERIES_PATH.stat().st_mtime
+    if _series_cache["mtime"] != mtime:
+        try:
+            data = json.loads(SERIES_PATH.read_text())
+        except json.JSONDecodeError:
+            return {"days": 7, "stations": {}}
+        days = data.get("days")
+        stations = data.get("stations")
+        if not isinstance(days, int) or not isinstance(stations, dict):
+            return {"days": 7, "stations": {}}
+        _series_cache["mtime"] = mtime
+        _series_cache["payload"] = {
+            "fetched_at": data.get("fetched_at"),
+            "days": days,
+            "stations": stations,
+        }
+    return _series_cache["payload"]
 
 
 @app.get("/api/stars")

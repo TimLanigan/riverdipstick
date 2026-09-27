@@ -12,11 +12,15 @@ function StationCard({ station }) {
   return (
     <div className="card station-card">
       <div className="card-head">
-        <Link className="card-title" to={to}>
-          <span className="river">{station.river}</span>
+        <div className="card-title">
+          <Link className="river" to={`/rivers/${station.riverSlug}`}>
+            {station.river}
+          </Link>
           <span className="sep">/</span>
-          <strong>{station.name}</strong>
-        </Link>
+          <Link className="station-name" to={to}>
+            <strong>{station.name}</strong>
+          </Link>
+        </div>
         <StarButton slug={station.slug} />
         {reading ? (
           <Link className="level" to={to}>

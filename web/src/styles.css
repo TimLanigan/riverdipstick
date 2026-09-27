@@ -130,6 +130,14 @@ h2 {
   color: #8ea0bd;
 }
 
+.card-title a {
+  color: inherit;
+}
+
+.card-title .station-name {
+  min-width: 0;
+}
+
 .card strong {
   display: block;
   color: #e7e9ee;
@@ -267,6 +275,7 @@ h1.title {
 .river {
   color: #8ea0bd;
   font-size: 0.85rem;
+  flex: none;
 }
 
 .list li {

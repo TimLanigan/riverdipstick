@@ -172,9 +172,18 @@ export function LevelLine({ stationId, height = 168, interactive = false, smooth
       from: end - days * DAY,
       to: end,
     });
-    const syncWidth = () => setPlotWidth(chart.timeScale().width());
-    syncWidth();
-    chart.timeScale().subscribeSizeChange(syncWidth);
+    const measure = () => {
+      const el = ref.current;
+      if (!el) return;
+      let right = 0;
+      const scale = chart.priceScale("right");
+      if (scale.options().visible) right = scale.width();
+      setPlotWidth(Math.max(el.clientWidth - right, 0));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(ref.current);
+    chart.timeScale().subscribeSizeChange(measure);
     const onMove = (param) => {
       if (!interactive || param.time == null) {
         setHover(null);
@@ -189,7 +198,8 @@ export function LevelLine({ stationId, height = 168, interactive = false, smooth
     };
     if (interactive) chart.subscribeCrosshairMove(onMove);
     return () => {
-      chart.timeScale().unsubscribeSizeChange(syncWidth);
+      observer.disconnect();
+      chart.timeScale().unsubscribeSizeChange(measure);
       if (interactive) chart.unsubscribeCrosshairMove(onMove);
       chart.remove();
     };
@@ -204,10 +214,18 @@ export function LevelLine({ stationId, height = 168, interactive = false, smooth
       <div style={{ height }} ref={ref} />
       <div className="axis">
         {ticks.map((tick) => (
-          <i key={tick.key} className="tick" style={{ left: tick.at * plotWidth }} />
+          <i
+            key={tick.key}
+            className="tick"
+            style={{ left: plotWidth ? tick.at * plotWidth : `${tick.at * 100}%` }}
+          />
         ))}
         {labels.map((label) => (
-          <span key={label.key} className="day" style={{ left: label.at * plotWidth }}>
+          <span
+            key={label.key}
+            className="day"
+            style={{ left: plotWidth ? label.at * plotWidth : `${label.at * 100}%` }}
+          >
             {label.label}
           </span>
         ))}

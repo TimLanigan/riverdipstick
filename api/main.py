@@ -11,7 +11,9 @@ app = FastAPI(title="Riverdipstick", version="2.0.0")
 STARS_PATH = Path("/data/stars.json")
 LEVELS_PATH = Path("/data/levels.json")
 SERIES_PATH = Path("/data/series.json")
+HISTORY_PATH = Path("/data/history.json")
 _series_cache = {"mtime": None, "payload": {"days": 7, "stations": {}}}
+_history_cache = {"mtime": None, "payload": {"days": 14, "stations": {}}}
 SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 DEFAULT = ["great-musgrave", "low-moor"]
 lock = Lock()
@@ -84,6 +86,35 @@ def get_series() -> dict:
             "stations": stations,
         }
     return _series_cache["payload"]
+
+
+def read_history() -> dict:
+    if not HISTORY_PATH.exists():
+        return {"days": 14, "stations": {}}
+    mtime = HISTORY_PATH.stat().st_mtime
+    if _history_cache["mtime"] != mtime:
+        try:
+            data = json.loads(HISTORY_PATH.read_text())
+        except json.JSONDecodeError:
+            return {"days": 14, "stations": {}}
+        days = data.get("days")
+        stations = data.get("stations")
+        if not isinstance(days, int) or not isinstance(stations, dict):
+            return {"days": 14, "stations": {}}
+        _history_cache["mtime"] = mtime
+        _history_cache["payload"] = {"days": days, "stations": stations}
+    return _history_cache["payload"]
+
+
+@app.get("/api/history/{station_id}")
+def get_history(station_id: str) -> dict:
+    if not station_id.isdigit():
+        raise HTTPException(status_code=400, detail="bad station")
+    data = read_history()
+    points = data["stations"].get(station_id, [])
+    if not isinstance(points, list):
+        points = []
+    return {"days": data["days"], "points": points}
 
 
 @app.get("/api/stars")

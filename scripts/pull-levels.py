@@ -5,6 +5,7 @@ Read-only. The API container never gets an SSH key. A user timer runs this
 every few minutes. Does not write to wintermute-db.
 
 DAYS is how many 24-hour stretches the card chart shows, ending at the latest reading.
+HISTORY_DAYS is what a station page can scroll back through. It is not sent with the homepage.
 """
 
 import json
@@ -16,10 +17,13 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 LEVELS_OUT = DATA / "levels.json"
 SERIES_OUT = DATA / "series.json"
+HISTORY_OUT = DATA / "history.json"
 
 # Card chart window. Exactly this many 24-hour stretches, ending at the
 # latest reading. Not a control on the card.
-DAYS = 3
+DAYS = 5
+# Loaded when a station page opens, so dragging back does not wait on the database.
+HISTORY_DAYS = 14
 
 LATEST_SQL = """
 SELECT DISTINCT ON (station_id)
@@ -32,12 +36,12 @@ WHERE timestamp >= NOW() - INTERVAL '2 days'
 ORDER BY station_id, timestamp DESC
 """
 
-SERIES_SQL = f"""
+HISTORY_SQL = f"""
 SELECT station_id,
        floor(extract(epoch from timestamp))::bigint,
        level
 FROM readings
-WHERE timestamp >= NOW() - INTERVAL '{DAYS} days'
+WHERE timestamp >= NOW() - INTERVAL '{HISTORY_DAYS} days'
   AND level IS NOT NULL
 ORDER BY station_id, timestamp
 """
@@ -92,15 +96,28 @@ def series(text: str) -> dict:
     return stations
 
 
+def recent(stations: dict, days: int) -> dict:
+    cutoff = datetime.now(timezone.utc).timestamp() - days * 86400
+    return {
+        station_id: [point for point in rows if point[0] >= cutoff]
+        for station_id, rows in stations.items()
+    }
+
+
 def main() -> None:
     fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     write_json(
         LEVELS_OUT,
         {"fetched_at": fetched_at, "stations": latest_levels(query(LATEST_SQL))},
     )
+    history = series(query(HISTORY_SQL))
+    write_json(
+        HISTORY_OUT,
+        {"fetched_at": fetched_at, "days": HISTORY_DAYS, "stations": history},
+    )
     write_json(
         SERIES_OUT,
-        {"fetched_at": fetched_at, "days": DAYS, "stations": series(query(SERIES_SQL))},
+        {"fetched_at": fetched_at, "days": DAYS, "stations": recent(history, DAYS)},
     )
 
 

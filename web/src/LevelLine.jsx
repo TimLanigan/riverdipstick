@@ -88,14 +88,34 @@ function axisMarks(start, end) {
 }
 
 export function LevelLine({ stationId, height = 168, interactive = false, smooth = 1 }) {
-  const { ready, days, points } = useSeries(stationId);
+  const { ready, days, points: shortPoints } = useSeries(stationId);
+  const [history, setHistory] = useState(null);
+  const [visible, setVisible] = useState(null);
   const ref = useRef(null);
   const [plotWidth, setPlotWidth] = useState(0);
   const [hover, setHover] = useState(null);
+  const points = history && history.length ? history : shortPoints;
   const plotted = toPoints(points);
   const end = plotted.length ? plotted[plotted.length - 1].time : 0;
-  const start = end - days * DAY;
-  const { ticks, labels } = axisMarks(start, end);
+  const glanceStart = end - days * DAY;
+  const rangeStart = visible ? visible.from : glanceStart;
+  const rangeEnd = visible ? visible.to : end;
+  const { ticks, labels } = axisMarks(rangeStart, rangeEnd);
+
+  useEffect(() => {
+    if (!interactive) return undefined;
+    let cancelled = false;
+    setHistory(null);
+    fetch(`/api/history/${stationId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (!cancelled) setHistory(data.points || []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [interactive, stationId]);
 
   useEffect(() => {
     if (!ready || points.length === 0 || !ref.current) return undefined;
@@ -145,9 +165,16 @@ export function LevelLine({ stationId, height = 168, interactive = false, smooth
             vertLine: { visible: false, labelVisible: false },
             horzLine: { visible: false, labelVisible: false },
           },
-      handleScroll: false,
+      handleScroll: interactive
+        ? {
+            mouseWheel: true,
+            pressedMouseMove: true,
+            horzTouchDrag: true,
+            vertTouchDrag: false,
+          }
+        : false,
       handleScale: false,
-      kineticScroll: { touch: false, mouse: false },
+      kineticScroll: { touch: interactive, mouse: false },
     });
     const series = chart.addSeries(AreaSeries, {
       lineColor: LINE,
@@ -165,6 +192,14 @@ export function LevelLine({ stationId, height = 168, interactive = false, smooth
       from: end - days * DAY,
       to: end,
     });
+    const syncRange = () => {
+      const range = chart.timeScale().getVisibleRange();
+      if (range && range.from != null && range.to != null) {
+        setVisible({ from: range.from, to: range.to });
+      }
+    };
+    chart.timeScale().subscribeVisibleTimeRangeChange(syncRange);
+    syncRange();
     const measure = () => {
       const el = ref.current;
       if (!el) return;
@@ -193,6 +228,7 @@ export function LevelLine({ stationId, height = 168, interactive = false, smooth
     return () => {
       observer.disconnect();
       chart.timeScale().unsubscribeSizeChange(measure);
+      chart.timeScale().unsubscribeVisibleTimeRangeChange(syncRange);
       if (interactive) chart.unsubscribeCrosshairMove(onMove);
       chart.remove();
     };

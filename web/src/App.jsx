@@ -183,7 +183,7 @@ function StationPage() {
         <section className="block">
           <h2>Level line</h2>
           <Window />
-          <LevelLine stationId={station.id} height={420} smooth={1} interactive />
+          <LevelLine stationId={station.id} height={252} smooth={1} interactive />
         </section>
         {["Pressure", "Forecast", "Map"].map((title) => (
           <section className="block" key={title}>

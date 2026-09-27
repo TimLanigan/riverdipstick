@@ -2,6 +2,7 @@ import { Link, NavLink, Route, Routes, useParams } from "react-router-dom";
 import logo from "./rd-logo.png";
 import { findRiver, findStation, rivers, stations, stationsOn } from "./stations.js";
 import { cardSmooth } from "./cardSmoothing.js";
+import { shownStations } from "./hiddenStations.js";
 import { LevelLine } from "./LevelLine.jsx";
 import { useLevelLine } from "./levels.jsx";
 import { useSeries } from "./series.jsx";
@@ -59,7 +60,7 @@ function Shell({ children }) {
 
 function Home() {
   const { starred, ready } = useStars();
-  const picked = stations.filter((station) => starred.has(station.slug));
+  const picked = shownStations(stations).filter((station) => starred.has(station.slug));
   return (
     <Shell>
       {!ready ? <p className="lede">Loading…</p> : null}
@@ -77,6 +78,15 @@ function Home() {
   );
 }
 
+function RiverCount({ river }) {
+  const count = shownStations(stationsOn(river.slug)).length;
+  return (
+    <span className="river">
+      {count} {count === 1 ? "station" : "stations"}
+    </span>
+  );
+}
+
 function RiverList() {
   return (
     <Shell>
@@ -85,7 +95,7 @@ function RiverList() {
         {rivers.map((river) => (
           <li key={river.slug}>
             <Link className="card" to={`/rivers/${river.slug}`}>
-              <span className="river">{river.stations.length} stations</span>
+              <RiverCount river={river} />
               <strong>{river.name}</strong>
             </Link>
           </li>
@@ -108,7 +118,7 @@ function RiverPage() {
       </Shell>
     );
   }
-  const list = stationsOn(river.slug);
+  const list = shownStations(stationsOn(river.slug));
   return (
     <Shell>
       <p className="crumb">

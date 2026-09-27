@@ -41,19 +41,12 @@ function toPoints(raw) {
 const DAY = 86400;
 
 function hoverTime(time) {
-  const date = new Date(time * 1000);
-  const day = new Intl.DateTimeFormat("en-US", {
-    timeZone: "UTC",
-    month: "short",
-    day: "numeric",
-  }).format(date);
-  const clock = new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("en-GB", {
     timeZone: "UTC",
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-  }).format(date);
-  return `${day}, ${clock}`;
+  }).format(new Date(time * 1000));
 }
 
 function monthDay(unix) {

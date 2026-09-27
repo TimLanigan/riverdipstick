@@ -57,7 +57,6 @@ function Home() {
   const picked = stations.filter((station) => starred.has(station.slug));
   return (
     <Shell>
-      <h1>Home</h1>
       {!ready ? <p className="lede">Loading…</p> : null}
       {ready && picked.length === 0 ? (
         <p className="lede">Nothing starred yet.</p>
@@ -76,7 +75,6 @@ function Home() {
 function RiverList() {
   return (
     <Shell>
-      <h1>Rivers</h1>
       <p className="lede">Pick a river, then a station.</p>
       <ul className="cards">
         {rivers.map((river) => (
@@ -114,7 +112,6 @@ function RiverPage() {
         <Link to="/rivers">Rivers</Link>
         <span> / {river.name}</span>
       </p>
-      <h1>{river.name}</h1>
       <ul className="cards">
         {list.map((station) => (
           <li key={station.slug}>

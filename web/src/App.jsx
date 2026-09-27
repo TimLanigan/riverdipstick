@@ -1,6 +1,7 @@
 import { Link, NavLink, Route, Routes, useParams } from "react-router-dom";
 import logo from "./rd-logo.png";
 import { findRiver, findStation, rivers, stations, stationsOn } from "./stations.js";
+import { cardSmooth } from "./cardSmoothing.js";
 import { LevelLine } from "./LevelLine.jsx";
 import { useLevelLine } from "./levels.jsx";
 import { useSeries } from "./series.jsx";
@@ -31,7 +32,7 @@ function StationCard({ station }) {
       </div>
       {station.note ? <span className="meta note">{station.note}</span> : null}
       <Link className="card-chart" to={to}>
-        <LevelLine stationId={station.id} />
+        <LevelLine stationId={station.id} smooth={cardSmooth(station.slug)} />
       </Link>
     </div>
   );
@@ -172,7 +173,7 @@ function StationPage() {
         <section className="block">
           <h2>Level line</h2>
           <Window />
-          <LevelLine stationId={station.id} height={420} interactive />
+          <LevelLine stationId={station.id} height={420} smooth={1} interactive />
         </section>
         {["Pressure", "Forecast", "Map"].map((title) => (
           <section className="block" key={title}>

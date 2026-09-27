@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { AreaSeries, ColorType, CrosshairMode, createChart } from "lightweight-charts";
 import { useSeries } from "./series.jsx";
+import { smoothPoints } from "./smooth.js";
 
 // Filled blue, like a cross-section of the river. Raw readings, no spline.
 // TradingView Lightweight Charts. The logo is off; the station page links to them.
@@ -77,7 +78,7 @@ function axisMarks(start, end) {
   return { ticks, labels };
 }
 
-export function LevelLine({ stationId, height = 168, interactive = false }) {
+export function LevelLine({ stationId, height = 168, interactive = false, smooth = 1 }) {
   const { ready, days, points } = useSeries(stationId);
   const ref = useRef(null);
   const plotted = toPoints(points);
@@ -146,7 +147,7 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
       lastValueVisible: false,
       crosshairMarkerVisible: interactive,
     });
-    const plotted = toPoints(points);
+    const plotted = smoothPoints(toPoints(points), smooth);
     series.setData(plotted);
     const end = plotted[plotted.length - 1].time;
     chart.timeScale().setVisibleRange({
@@ -154,7 +155,7 @@ export function LevelLine({ stationId, height = 168, interactive = false }) {
       to: end,
     });
     return () => chart.remove();
-  }, [ready, points, days, interactive]);
+  }, [ready, points, days, interactive, smooth]);
 
   if (!ready) return <div className="chart waiting" style={{ height }} />;
   if (points.length === 0) {

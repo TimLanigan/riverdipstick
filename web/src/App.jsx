@@ -5,7 +5,6 @@ import { cardSmooth } from "./cardSmoothing.js";
 import { shownStations } from "./hiddenStations.js";
 import { LevelLine } from "./LevelLine.jsx";
 import { useLevelLine } from "./levels.jsx";
-import { useSeries } from "./series.jsx";
 import { StarButton, useStars } from "./stars.jsx";
 
 function StationCard({ station }) {
@@ -138,18 +137,6 @@ function RiverPage() {
   );
 }
 
-function Window() {
-  const { days } = useSeries("");
-  return (
-    <p className="meta">
-      Last {days} days.{" "}
-      <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">
-        Charts by TradingView
-      </a>
-    </p>
-  );
-}
-
 function StationPage() {
   const { slug } = useParams();
   const station = findStation(slug);
@@ -181,8 +168,6 @@ function StationPage() {
       </p>
       <div className="grid">
         <section className="block">
-          <h2>Level line</h2>
-          <Window />
           <LevelLine stationId={station.id} height={252} smooth={1} interactive />
         </section>
         {["Pressure", "Forecast", "Map"].map((title) => (

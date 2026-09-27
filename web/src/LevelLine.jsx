@@ -4,7 +4,7 @@ import { useSeries } from "./series.jsx";
 import { smoothPoints } from "./smooth.js";
 
 // Filled blue, like a cross-section of the river. Raw readings, no spline.
-// TradingView Lightweight Charts. The logo is off; the station page links to them.
+// TradingView Lightweight Charts. The logo is off. Put their link back on the site later.
 // Times are shifted so the chart's UTC axis matches UK civil time. Otherwise the
 // same day is labelled twice (midnight UTC and midnight in London).
 const LINE = "#3d8bfd";

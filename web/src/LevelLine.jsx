@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AreaSeries, ColorType, CrosshairMode, createChart } from "lightweight-charts";
 import { useSeries } from "./series.jsx";
 import { smoothPoints } from "./smooth.js";
@@ -39,6 +39,22 @@ function toPoints(raw) {
 }
 
 const DAY = 86400;
+
+function hoverTime(time) {
+  const date = new Date(time * 1000);
+  const day = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+  const clock = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "UTC",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
+  return `${day}, ${clock}`;
+}
 
 function monthDay(unix) {
   return new Intl.DateTimeFormat("en-US", {
@@ -81,6 +97,8 @@ function axisMarks(start, end) {
 export function LevelLine({ stationId, height = 168, interactive = false, smooth = 1 }) {
   const { ready, days, points } = useSeries(stationId);
   const ref = useRef(null);
+  const [plotWidth, setPlotWidth] = useState(0);
+  const [hover, setHover] = useState(null);
   const plotted = toPoints(points);
   const end = plotted.length ? plotted[plotted.length - 1].time : 0;
   const start = end - days * DAY;
@@ -154,7 +172,27 @@ export function LevelLine({ stationId, height = 168, interactive = false, smooth
       from: end - days * DAY,
       to: end,
     });
-    return () => chart.remove();
+    const syncWidth = () => setPlotWidth(chart.timeScale().width());
+    syncWidth();
+    chart.timeScale().subscribeSizeChange(syncWidth);
+    const onMove = (param) => {
+      if (!interactive || param.time == null) {
+        setHover(null);
+        return;
+      }
+      const x = chart.timeScale().timeToCoordinate(param.time);
+      if (x == null) {
+        setHover(null);
+        return;
+      }
+      setHover({ x, text: hoverTime(param.time) });
+    };
+    if (interactive) chart.subscribeCrosshairMove(onMove);
+    return () => {
+      chart.timeScale().unsubscribeSizeChange(syncWidth);
+      if (interactive) chart.unsubscribeCrosshairMove(onMove);
+      chart.remove();
+    };
   }, [ready, points, days, interactive, smooth]);
 
   if (!ready) return <div className="chart waiting" style={{ height }} />;
@@ -166,13 +204,18 @@ export function LevelLine({ stationId, height = 168, interactive = false, smooth
       <div style={{ height }} ref={ref} />
       <div className="axis">
         {ticks.map((tick) => (
-          <i key={tick.key} className="tick" style={{ left: `${tick.at * 100}%` }} />
+          <i key={tick.key} className="tick" style={{ left: tick.at * plotWidth }} />
         ))}
         {labels.map((label) => (
-          <span key={label.key} className="day" style={{ left: `${label.at * 100}%` }}>
+          <span key={label.key} className="day" style={{ left: label.at * plotWidth }}>
             {label.label}
           </span>
         ))}
+        {hover ? (
+          <span className="when" style={{ left: hover.x }}>
+            {hover.text}
+          </span>
+        ) : null}
       </div>
     </div>
   );

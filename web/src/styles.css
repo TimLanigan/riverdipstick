@@ -215,6 +215,20 @@ h2 {
   line-height: 1;
 }
 
+.axis .when {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  transform: translateX(-50%);
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: #4c525e;
+  color: #fff;
+  white-space: nowrap;
+  line-height: 1.3;
+  pointer-events: none;
+}
+
 .card-chart .chart {
   margin-left: -1rem;
   margin-right: -1rem;

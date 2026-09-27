@@ -1,4 +1,5 @@
 import { Link, NavLink, Route, Routes, useParams } from "react-router-dom";
+import logo from "./rd-logo.png";
 import { findRiver, findStation, rivers, stations, stationsOn } from "./stations.js";
 import { LevelLine } from "./LevelLine.jsx";
 import { useLevelLine } from "./levels.jsx";
@@ -37,7 +38,7 @@ function Shell({ children }) {
     <>
       <header className="bar">
         <Link className="brand" to="/">
-          Riverdipstick
+          <img src={logo} alt="Riverdipstick" />
         </Link>
         <nav>
           <NavLink to="/" end>
@@ -57,9 +58,6 @@ function Home() {
   return (
     <Shell>
       <h1>Home</h1>
-      <p className="lede">
-        Starred stations only. Open a river and tap a star to add one.
-      </p>
       {!ready ? <p className="lede">Loading…</p> : null}
       {ready && picked.length === 0 ? (
         <p className="lede">Nothing starred yet.</p>

@@ -27,9 +27,19 @@ a:hover {
 }
 
 .brand {
-  color: #e7e9ee;
-  font-weight: 650;
-  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  line-height: 0;
+}
+
+.brand img {
+  height: 2.4rem;
+  width: auto;
+  display: block;
+}
+
+a.brand:hover {
+  text-decoration: none;
 }
 
 nav {
